@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class AnankeConfig(AppConfig):
-    name = 'ananke'
+    default_auto_field = 'django.db.models.bigAutoField'
+    name = 'cosmos.apps.ananke'

@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'two_factor',
     'otp_yubikey',
 
-    'apps.chronos',
-    'apps.anake',
+    'cosmos.apps.chronos',
+    'cosmos.apps.anake',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django_otp.middleware.OTPMiddleware',
 ]
 
@@ -134,5 +133,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/default-auto-field
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
