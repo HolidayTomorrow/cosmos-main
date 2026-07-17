@@ -1,0 +1,1 @@
+O projeto cosmos é uma plataforma que lidará com centralização, organização e otimização da gestão de fluxos de trabalho através de uma visualização dupla, além de organização, otimização e gestão de estoque e fluxo de materiais e equipamentos.
