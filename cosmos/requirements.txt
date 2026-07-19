@@ -1,3 +1,11 @@
 django>=5.0
 django-two-factor-auth>=1.15.0
-phonenumbers>=8.14.0
+django-two-factor-auth[phonenumbers]>=8.14.0
+django-otp>=1.2.4
+django-otp-yubikey>=1.0.0
+django-axes>=5.40.0
+gunicorn>=21.2.0
+argon2-cffi>=23.1.0
+pillow<=12.3.0
+cryptography>=2.0
+pyotp<=2.10.0
