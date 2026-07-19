@@ -4,7 +4,8 @@
 gunicorn-error-log
 __localcode
 /data/
-
+/cosmos/templates/two_factor/core/setup_backup.html
+/cosmos/static/css/style_backup.css
 # Django #
 *.log
 *.pot
