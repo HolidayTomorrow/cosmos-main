@@ -16,10 +16,34 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth.views import LogoutView, LoginView
 from two_factor.urls import urlpatterns as tf_urls
+from two_factor.admin import AdminSiteOTPRequired
+from django.views.generic import RedirectView
+from .views import CustomSetupView
 
+admin.site.__class__=AdminSiteOTPRequired
+
+
+from . import views
 
 urlpatterns = [
-    path('', include(tf_urls)),
     path('admin/', admin.site.urls),
+    path('home/', views.home_view, name='home'),
+    path('', RedirectView.as_view(url='/account/login/', permanent=False)),
+    # path('account/two_factor/setup', CustomSetupView.as_view(), name='setup'),
+
+    # Rota de login
+    path('login', LoginView.as_view(), name='login'),
+
+    # Rota de logout
+    path('logout/', LogoutView.as_view(), name='logout'),
+
+    path('', include(tf_urls)),
+    # Rotas internas da biblioteca two_factor (Setup, QRCode, etc) colocadas em /accounts/
+    # --- ESTA É A FORMA CORRETA E 100% FUNCIONAL ---
+    # O Django 6.0 aceita isso sem reclamar do namespace, 
+    # e a biblioteca two_factor entende essa string perfeitamente.
+    # path('', include(tf_urls)),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
