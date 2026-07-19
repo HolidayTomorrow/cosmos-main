@@ -11,21 +11,24 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from pathlib import Path
+from django.forms import TextInput, PasswordInput
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / 'data' / 'web'
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^s94oev(9vjb9@ne)i=ijqwbv0z(6e&up5hyfhzr2o%n7qp+i%'
+SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv('DEBUG', '1')))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 
 # Application definition
@@ -37,13 +40,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'core',
     'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
     'two_factor',
     'otp_yubikey',
-
-    'cosmos.apps.chronos',
-    'cosmos.apps.anake',
+    # 'two_factor.plugins.yubikey',
+    'apps.chronos',
+    'apps.ananke',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,9 +60,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_otp.middleware.OTPMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -61,7 +71,10 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,15 +89,27 @@ TEMPLATES = [
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-
 LOGIN_URL = 'two_factor:login'
 
-LOGIN_REDIRECT_URL = 'two_factor:profile'
+LOGIN_REDIRECT_URL = 'home'
+
+LOGOUT_REDIRECT_URL = 'two_factor:login'
+
+TWO_FACTOR_REMEMBER_COOKIE_AGE = None
+
+# Permite que o usuário faça o primeiro login com senha para depois configurar o 2FA
+TWO_FACTOR_FORCE_OTP_ADMIN = False 
+
+# TWO_FACTOR_FORCE_OTP_ADMIN = False
+
+# Força a biblioteca a gerar imagens PNG nativas usando o Pillow
+TWO_FACTOR_QR_FACTORY = 'qrcode.image.pure.PillowImage'
 
 LOGIN_TEMPLATE = 'login.html'
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -93,6 +118,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        # 'USER': os.getenv('POSTGRES_USER', 'change-me'),
+        # 'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'change-me'),
+        # 'HOST': os.getenv('POSTGRES_HOST', 'change-me'),
+        # 'PORT': os.getenv('POSTGRES_PORT', 'change-me'),
     }
 }
 
@@ -119,6 +148,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
+LANGUAGES = [
+    ('pt-br', _('Português')),
+    ('en', _('English')),
+    ('es', _('Español')),
+]
+
+
 LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Sao_Paulo'
@@ -126,6 +162,8 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 
 USE_TZ = True
+
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -137,3 +175,26 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/6.0/ref/settings/default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# Sobrescreve as propriedades visuais dos campos da biblioteca two_factor
+# Atualize ou verifique este bloco no final do seu settings.py
+TWO_FACTOR_WIDGETS = {
+    'username': TextInput(attrs={
+        'placeholder': 'Insira o seu usuário',
+        'autocomplete': 'username'
+    }),
+    'password': PasswordInput(attrs={
+        'placeholder': 'Insira sua senha',
+        'autocomplete': 'current-password'
+    }),
+    # ADICIONE ESTA LINHA EXATAMENTE AQUI (Usa o prefixo do wizard para o passo de setup):
+    'generator-token': TextInput(attrs={
+        'placeholder': 'Digite o código gerado para confirmar',
+        'inputmode': 'numeric',
+        'maxlength': '6'
+    }),
+}
+
