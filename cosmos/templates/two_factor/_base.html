@@ -1,0 +1,11 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Cosmos - sistema de Gestão{% endblock title %}
+
+{% block content %}
+    {# A biblioteca injeta as telas de login e passos do 2FA dentro deste bloco #}
+    {% block two_factor_content %}
+    {% endblock two_factor_content %}
+{% endblock content %}

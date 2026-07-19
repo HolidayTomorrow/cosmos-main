@@ -1,7 +1,11 @@
 {% load static %}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ site_tittle }}</title>
-<!-- Seus links de CSS globais, se tiver -->
-<link rel="icon" type="image/x-icon" href="{% static 'img/favicon_titulo.svg' %}">
-<link rel="stylesheet" href={% static "css/style.css" %}>
+<!-- Links de CSS globais, se tiver -->
+<link rel="icon" type="image/x-icon" href="{% static 'img/image_favicon_titulo.svg' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% comment %} <!-- Bloco para CSS extra -->
+ {% block extra_css %}{% endblock extra_css %} {% endcomment %}
+
+

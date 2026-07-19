@@ -2,8 +2,24 @@
 <html lang="pt-BR">
 <head>
     {% include 'partials/head.html' %}
+    <title>{% block tittle %}{% endblock tittle %}</title>
 </head>
 <body>
-    
+    {% block content %}
+    {% endblock content %}
+    <!-- Inclui o Header (Navbar) -->
+     {% comment %} {% include 'login.html' %} {% endcomment %}
+
+     {% comment %} <!-- Área principal onde o conteúdo das páginas será injetado -->
+      <main>
+        {% block content %}
+        {% endblock content %}
+
+        <!-- Inclui o Footer -->
+         {% include "partials/footer.html" %}
+
+         <!-- Bloco para JavaScript extra de páginas específicas -->
+          {% block extra_js %}{% endblock extra_js %}
+      </main> {% endcomment %}
 </body>
 </html>

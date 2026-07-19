@@ -1,0 +1,72 @@
+{% extends "two_factor/_base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_title %}Cosmos - Login SEDUC / Governo de Goiás{% endblock %}
+
+{% block two_factor_content %}
+<div class="login-card">
+    <div class="logos-container">
+        <div class="logo-box">
+            <img src="{% static 'img/logo_seduc.svg' %}" alt="SEDUC">
+        </div>
+    </div>
+
+    {% if '/admin' in request.GET.next %}
+        <div class="admin-subtitle" id="adminTitle">Login de Administrador</div>
+    {% endif %}
+
+    {% if wizard.form.errors %}
+        <div class="alert-error-global" id="errorBlock">
+            {% trans "Usuário ou senha inválidos." %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="" id="loginForm" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        
+        {% for field in wizard.form %}
+            <div class="form-group">
+                {{ field }}
+                {% if field.errors %}
+                    <div class="error-message field-error-text">{% trans "Campo obrigatório." %}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn-entrar" id="btnSubmit">Entrar</button>
+    </form>
+
+    <div class="footer-links">
+        <form action="{% url 'set_language' %}" method="post" id="langForm">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+            
+            <select name="language" id="langSelect">
+                {% get_current_language as LANGUAGE_CODE %}
+                <option value="pt-br" {% if LANGUAGE_CODE == 'pt-br' %}selected{% endif %}>Português</option>
+                <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                <option value="es" {% if LANGUAGE_CODE == 'es' %}selected{% endif %}>Español</option>
+            </select>
+        </form>
+        <!-- Container relativo que segura o link e a caixinha suspensa -->
+        <div class="help-container">
+            <a href="#" id="linkAjuda">Ajuda</a>
+            
+            <!-- CAIXA SUSPENSA DISCRETA (Inicia oculta) -->
+            <div id="helpDropdown" class="help-dropdown">
+                <p id="modalInstruction" class="dropdown-text">Para problemas de acesso ou perda do token (2FA), contate a administração:</p>
+                <div class="dropdown-info">
+                    <p><strong>{% trans "Website" %}:</strong> <a href="https://educacao.go.gov.br" target="_blank">site.educacao.go.gov.br</a></p>
+                    <p><strong>{% trans "E-mails" %}:</strong> <a href="mailto:marcelo.rlopes@seduc.go.gov.br">marcelo.rlopes@...</a><br><a href="mailto:rede@seduc.go.gov.br">rede@seduc.go.gov.br</a></p>
+                    <p><strong>{% trans "Telefone" %}:</strong> <a href="https://wa.me" target="_blank">(62) 9 8226-0398</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<span id="django-step-context" data-step="{{ wizard.steps.current }}" style="display: none;"></span>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock two_factor_content %}

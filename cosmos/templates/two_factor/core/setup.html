@@ -1,0 +1,90 @@
+{% extends "two_factor/_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load qrcode_tags %}
+
+{% block title %}Cosmos - Configurar Autenticação em Duas Etapas{% endblock title %}
+
+{% block two_factor_content %}
+<div class="login-card">
+    <!-- Área de Marcas Institucionais -->
+    <div class="logos-container">
+        <div class="logo-box">
+            <img src="{% static 'img/logo_seduc.svg' %}" alt="SEDUC">
+        </div>
+    </div>
+
+    <!-- Título principal -->
+    <div class="setup-header">
+        <h2>{% trans "Habilitar verificação em duas etapas" %}</h2>
+    </div>
+
+    <!-- Formulário do Assistente -->
+    <form method="post" action="" id="setupForm" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        <!-- ETAPA 1: Seleção do Método Invisível -->
+        {% if wizard.steps.current == 'method' %}
+            <div class="setup-step-text">
+                <p>{% blocktrans %}Você está prestes a levar a segurança da sua conta para o próximo nível. Clique em Avançar para configurar seu aplicativo autenticador e gerar chaves de segurança.{% endblocktrans %}</p>
+            </div>
+            
+            <div class="hidden-field">
+                {% for radio in wizard.form.method %}
+                    <label>
+                        <input type="radio" name="method" value="generator" checked>
+                    </label>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- ETAPA 2: O Passo do Generator (Onde o QR Code REALMENTE existe) -->
+        {% if wizard.steps.current == 'generator' %}
+            <div class="qr-container">
+                <p class="qr-instruction">
+                    {% trans "Escaneie o QR Code abaixo com seu aplicativo autenticador (Google Authenticator, Authy, etc.):" %}
+                </p>
+
+                <!-- 2. Executa a função Python direto no SRC da imagem passando os dados necessários -->
+                <img src="{% gerar_2fa_qrcode secret_key request.user.get_username %}" alt="QR Code" class="qr-image-native" />
+                        
+                <p class="secret-key-text">
+                    {% trans "Ou insira a chave manualmente no aplicativo:" %}<br>
+                    <strong id="django-secret-key" class="secret-key-code">{{ secret_key }}</strong>
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Campo do token de 6 dígitos -->
+        {% for field in wizard.form %}
+            {% if wizard.steps.current == 'generator' and field.name == 'token' %}
+                <div class="form-group">
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Botões de Ação do Rodapé -->
+        <div class="setup-actions">
+            <button type="submit" class="btn-entrar" id="btnSubmit">
+                {% if wizard.steps.current == 'method' %}{% trans "Avançar" %}{% else %}{% trans "Ativar Autenticação" %}{% endif %}
+            </button>
+            
+            <div class="setup-nav-links">
+                {% if wizard.steps.prev %}
+                    <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn-back">{% trans "Voltar" %}</button>
+                {% endif %}
+                <a href="{% url 'home' %}" class="link-cancel">{% trans "Cancelar" %}</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Importação unificada dos arquivos estáticos locais -->
+
+<script src="{% static 'js/setup.js' %}"></script>
+{% endblock two_factor_content %}
